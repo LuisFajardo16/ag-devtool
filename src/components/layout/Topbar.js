@@ -1,5 +1,6 @@
 import { events } from '../../core/events.js';
 import { AuthService } from '../../core/auth.js';
+import { WorkspaceManager } from '../../core/workspaceManager.js';
 import {
   createButton,
   createDropdown,
@@ -10,6 +11,10 @@ import {
 import { openMarketplaceModal } from '../../views/MarketplaceModal.js';
 import { openAdminLoginModal } from '../../views/AdminLoginModal.js';
 import { openAdminComponentsModal } from '../../views/AdminComponentsView.js';
+import {
+  openWorkspaceModal,
+  openCreateWorkspaceModal
+} from '../../views/WorkspaceModal.js';
 
 export class Topbar {
   constructor(container, panelManager) {
@@ -18,6 +23,7 @@ export class Topbar {
 
     events.on('auth:changed', () => this.render());
     events.on('layout:changed', () => this.render());
+    events.on('workspace:changed', () => this.render());
   }
 
   render() {
@@ -27,21 +33,62 @@ export class Topbar {
     nav.className =
       'h-14 px-4 bg-slate-900/95 border-b border-slate-800/90 flex items-center justify-between gap-3 shrink-0 select-none';
 
-    // Marca / Título
+    const activeWorkspace = WorkspaceManager.getActiveWorkspace();
+    const allWorkspaces = WorkspaceManager.getWorkspaces();
+
+    // Marca / Título + Selector de Workspace
     const brand = document.createElement('div');
     brand.className = 'flex items-center gap-3 min-w-0';
     brand.innerHTML = `
       <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shrink-0 shadow-inner">
         ${getIcon('terminal')}
       </div>
-      <div class="truncate">
+      <div class="truncate hidden lg:block">
         <div class="flex items-center gap-2">
           <h1 class="text-sm font-bold tracking-tight text-white">AG-DevTool</h1>
-          <span class="hidden sm:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">v1.0</span>
+          <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">v1.1</span>
         </div>
-        <p class="text-[11px] text-slate-400 hidden sm:block truncate">Workbench modular de utilidades en Vanilla JS</p>
+        <p class="text-[11px] text-slate-400 truncate">Workbench modular de utilidades en Vanilla JS</p>
       </div>
     `;
+
+    // Selector rápido de Workspace en la pantalla principal
+    const workspaceDropdown = createDropdown({
+      label: `WS: ${activeWorkspace.name}`,
+      icon: 'briefcase',
+      variant: 'secondary',
+      size: 'sm',
+      items: [
+        { header: 'Workspaces Disponibles' },
+        ...allWorkspaces.map((ws) => ({
+          label: ws.name,
+          icon: 'briefcase',
+          badge: ws.isSystem
+            ? ws.wsTools?.length
+              ? 'WS + Market'
+              : 'Sistema'
+            : 'Usuario',
+          active: ws.id === activeWorkspace.id,
+          onClick: () => {
+            WorkspaceManager.setActiveWorkspace(ws.id);
+            Toast.info(`Workspace activo: "${ws.name}"`);
+          }
+        })),
+        { divider: true },
+        {
+          label: 'Nuevo Workspace...',
+          icon: 'plus',
+          onClick: () => openCreateWorkspaceModal()
+        },
+        {
+          label: 'Gestionar Workspaces...',
+          icon: 'layers',
+          onClick: () => openWorkspaceModal()
+        }
+      ]
+    });
+
+    brand.appendChild(workspaceDropdown);
 
     // Selector rápido de Paneles (1 a 6 paneles)
     const centerControls = document.createElement('div');

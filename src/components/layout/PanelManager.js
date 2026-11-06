@@ -1,6 +1,7 @@
 import { StorageService, STORAGE_KEYS } from '../../core/storage.js';
 import { events } from '../../core/events.js';
 import { ToolRegistry } from '../../core/toolRegistry.js';
+import { WorkspaceManager } from '../../core/workspaceManager.js';
 import {
   createButton,
   createDropdown,
@@ -31,6 +32,15 @@ const DEFAULT_LAYOUT = {
   }
 };
 
+function getDefaultLayoutForWorkspace(workspace) {
+  const base = JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+  const primaryWsTool = workspace?.wsTools?.[0];
+  if (primaryWsTool) {
+    base.panelTools[0] = primaryWsTool;
+  }
+  return base;
+}
+
 export class PanelManager {
   constructor(container) {
     this.container = container;
@@ -40,15 +50,31 @@ export class PanelManager {
 
     events.on('tools:changed', () => this.render());
     events.on('auth:changed', () => this.render());
+    events.on('workspace:changed', () => {
+      this.maximizedPanelIndex = null;
+      this.state = this.loadState();
+      this.render();
+    });
   }
 
   loadState() {
-    const saved = StorageService.get(STORAGE_KEYS.LAYOUT, null);
-    if (!saved || typeof saved !== 'object') {
-      return JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+    const activeWs = WorkspaceManager.getActiveWorkspace();
+    const wsId = activeWs?.id || 'default';
+    const defaultForWs = getDefaultLayoutForWorkspace(activeWs);
+
+    const allLayouts = StorageService.get(STORAGE_KEYS.WORKSPACE_LAYOUTS, {});
+    let saved = allLayouts && typeof allLayouts === 'object' ? allLayouts[wsId] : null;
+
+    if (!saved && wsId === 'default') {
+      saved = StorageService.get(STORAGE_KEYS.LAYOUT, null);
     }
+
+    if (!saved || typeof saved !== 'object') {
+      return defaultForWs;
+    }
+
     return {
-      ...JSON.parse(JSON.stringify(DEFAULT_LAYOUT)),
+      ...defaultForWs,
       ...saved,
       colSplits: {
         ...JSON.parse(JSON.stringify(DEFAULT_LAYOUT.colSplits)),
@@ -58,6 +84,10 @@ export class PanelManager {
   }
 
   saveState() {
+    const wsId = WorkspaceManager.getActiveWorkspaceId();
+    const allLayouts = StorageService.get(STORAGE_KEYS.WORKSPACE_LAYOUTS, {}) || {};
+    allLayouts[wsId] = this.state;
+    StorageService.set(STORAGE_KEYS.WORKSPACE_LAYOUTS, allLayouts);
     StorageService.set(STORAGE_KEYS.LAYOUT, this.state);
     events.emit('layout:changed', this.state);
   }
@@ -376,7 +406,7 @@ export class PanelManager {
       id: t.id,
       label: t.name,
       icon: t.icon,
-      badge: t.category,
+      badge: t.isWsTool ? 'WS Tool' : t.category,
       active: activeTool?.id === t.id,
       onClick: () => this.openToolInPanel(panelIndex, t.id)
     }));

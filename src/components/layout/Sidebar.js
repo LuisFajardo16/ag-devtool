@@ -2,6 +2,7 @@ import { StorageService, STORAGE_KEYS } from '../../core/storage.js';
 import { events } from '../../core/events.js';
 import { ToolRegistry } from '../../core/toolRegistry.js';
 import { AuthService } from '../../core/auth.js';
+import { WorkspaceManager } from '../../core/workspaceManager.js';
 import {
   createButton,
   createBadge,
@@ -9,6 +10,7 @@ import {
 } from '../ui/index.js';
 import { openMarketplaceModal } from '../../views/MarketplaceModal.js';
 import { openAdminComponentsModal } from '../../views/AdminComponentsView.js';
+import { openWorkspaceModal } from '../../views/WorkspaceModal.js';
 
 export class Sidebar {
   constructor(container, panelManager) {
@@ -21,6 +23,7 @@ export class Sidebar {
     events.on('tools:changed', () => this.render());
     events.on('auth:changed', () => this.render());
     events.on('layout:changed', () => this.render());
+    events.on('workspace:changed', () => this.render());
   }
 
   toggleCollapse() {
@@ -31,6 +34,8 @@ export class Sidebar {
 
   render() {
     this.container.innerHTML = '';
+
+    const activeWorkspace = WorkspaceManager.getActiveWorkspace();
 
     const aside = document.createElement('aside');
     aside.className = `${
@@ -50,7 +55,7 @@ export class Sidebar {
       const labelWrap = document.createElement('div');
       labelWrap.className = 'flex items-center gap-2 min-w-0';
       labelWrap.innerHTML = `
-        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate">Utilidades Activas</span>
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate">Utilidades · ${activeWorkspace.name}</span>
       `;
       headerRow.appendChild(labelWrap);
     }
@@ -85,7 +90,7 @@ export class Sidebar {
       const isActive = currentToolInActivePanel === tool.id;
       const itemBtn = document.createElement('button');
       itemBtn.type = 'button';
-      itemBtn.title = `${tool.name} — Abrir en Panel P${activePanelIdx + 1}`;
+      itemBtn.title = `${tool.name}${tool.isWsTool ? ' (WS Tool)' : ''} — Abrir en Panel P${activePanelIdx + 1}`;
       itemBtn.className = `w-full flex items-center ${
         this.collapsed ? 'justify-center px-2 py-2.5' : 'justify-between px-3 py-2'
       } rounded-xl text-xs font-medium transition-all cursor-pointer group ${
@@ -98,19 +103,26 @@ export class Sidebar {
         itemBtn.innerHTML = `<span class="shrink-0">${getIcon(tool.icon)}</span>`;
       } else {
         itemBtn.innerHTML = `
-          <span class="flex items-center gap-2.5 truncate">
+          <span class="flex items-center gap-2.5 truncate min-w-0">
             <span class="shrink-0 ${
               isActive ? 'text-indigo-400' : 'text-slate-400 group-hover:text-slate-200'
             }">${getIcon(tool.icon)}</span>
             <span class="truncate">${tool.name}</span>
           </span>
-          ${
-            isActive
-              ? `<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300">P${
-                  activePanelIdx + 1
-                }</span>`
-              : ''
-          }
+          <span class="flex items-center gap-1 shrink-0 ml-1">
+            ${
+              tool.isWsTool
+                ? `<span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">WS</span>`
+                : ''
+            }
+            ${
+              isActive
+                ? `<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300">P${
+                    activePanelIdx + 1
+                  }</span>`
+                : ''
+            }
+          </span>
         `;
       }
 
@@ -181,9 +193,19 @@ export class Sidebar {
 
     topSection.appendChild(listWrap);
 
-    // Pie del Sidebar: Botón para abrir el Marketplace
+    // Pie del Sidebar: Botones para Workspaces y Marketplace
     const bottomSection = document.createElement('div');
-    bottomSection.className = 'p-2.5 border-t border-slate-800/90 bg-slate-950/40';
+    bottomSection.className = 'p-2.5 border-t border-slate-800/90 bg-slate-950/40 space-y-2';
+
+    const workspacesBtn = createButton({
+      label: this.collapsed ? '' : `WS: ${activeWorkspace.name}`,
+      icon: 'briefcase',
+      variant: 'secondary',
+      size: this.collapsed ? 'icon' : 'sm',
+      fullWidth: true,
+      title: 'Cambiar o gestionar Workspaces',
+      onClick: () => openWorkspaceModal()
+    });
 
     const marketBtn = createButton({
       label: this.collapsed ? '' : 'Market de Utilidades',
@@ -198,7 +220,7 @@ export class Sidebar {
         })
     });
 
-    bottomSection.appendChild(marketBtn);
+    bottomSection.append(workspacesBtn, marketBtn);
 
     aside.append(topSection, bottomSection);
     this.container.appendChild(aside);
