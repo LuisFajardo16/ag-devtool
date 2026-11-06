@@ -1,6 +1,6 @@
-import { StorageService, STORAGE_KEYS } from './storage.js';
 import { events } from './events.js';
 import { AuthService } from './auth.js';
+import { WorkspaceManager } from './workspaceManager.js';
 import { NotesManagerTool } from '../tools/NotesManager.js';
 import {
   JsonFormatterTool,
@@ -8,46 +8,66 @@ import {
   UuidHashTool,
   RegexTesterTool
 } from '../tools/BuiltinTools.js';
+import { CanvasSuffixGeneratorTool } from '../tools/CanvasSuffixGenerator.js';
 import { AdminComponentsTool } from '../views/AdminComponentsView.js';
 
-const ALL_TOOLS = [
+const MARKET_TOOLS = [
   NotesManagerTool,
   JsonFormatterTool,
   Base64CodecTool,
   UuidHashTool,
-  RegexTesterTool,
+  RegexTesterTool
+];
+
+const WS_TOOLS = [
+  CanvasSuffixGeneratorTool
+];
+
+const ALL_TOOLS = [
+  ...WS_TOOLS,
+  ...MARKET_TOOLS,
   AdminComponentsTool
 ];
 
-function getInitialInstalledIds() {
-  const saved = StorageService.get(STORAGE_KEYS.INSTALLED_TOOLS, null);
-  if (Array.isArray(saved) && saved.length > 0) {
-    return saved;
-  }
-  const defaults = ALL_TOOLS.filter((t) => t.defaultInstalled && !t.adminOnly).map((t) => t.id);
-  StorageService.set(STORAGE_KEYS.INSTALLED_TOOLS, defaults);
-  return defaults;
-}
-
 export const ToolRegistry = {
+  /**
+   * Devuelve únicamente las herramientas públicas del Marketplace (excluye WS Tools y Admin)
+   */
   getAllMarketplaceTools() {
-    return ALL_TOOLS.filter((t) => !t.adminOnly);
+    return MARKET_TOOLS.filter((t) => !t.adminOnly && !t.isWsTool);
+  },
+
+  /**
+   * Devuelve las WS Tools preinstaladas del workspace activo
+   */
+  getActiveWorkspaceTools() {
+    const activeWs = WorkspaceManager.getActiveWorkspace();
+    const wsToolIds = activeWs?.wsTools || [];
+    return WS_TOOLS.filter((t) => wsToolIds.includes(t.id));
   },
 
   getToolById(id) {
     const tool = ALL_TOOLS.find((t) => t.id === id);
     if (!tool) return null;
     if (tool.adminOnly && !AuthService.isAdmin()) return null;
+    if (tool.isWsTool) {
+      const activeWs = WorkspaceManager.getActiveWorkspace();
+      if (!activeWs?.wsTools?.includes(tool.id)) return null;
+    }
     return tool;
   },
 
   getInstalledToolIds() {
-    return getInitialInstalledIds();
+    return WorkspaceManager.getInstalledMarketToolIds();
   },
 
   getInstalledTools() {
-    const installedIds = this.getInstalledToolIds();
-    const list = ALL_TOOLS.filter((t) => !t.adminOnly && installedIds.includes(t.id));
+    const wsTools = this.getActiveWorkspaceTools();
+    const installedMarketIds = this.getInstalledToolIds();
+    const marketList = MARKET_TOOLS.filter(
+      (t) => !t.adminOnly && installedMarketIds.includes(t.id)
+    );
+    const list = [...wsTools, ...marketList];
     if (AuthService.isAdmin()) {
       list.push(AdminComponentsTool);
     }
@@ -56,6 +76,8 @@ export const ToolRegistry = {
 
   isInstalled(id) {
     if (id === 'admin-ui-kit') return AuthService.isAdmin();
+    const activeWs = WorkspaceManager.getActiveWorkspace();
+    if (activeWs?.wsTools?.includes(id)) return true;
     return this.getInstalledToolIds().includes(id);
   },
 
@@ -63,15 +85,27 @@ export const ToolRegistry = {
     const current = this.getInstalledToolIds();
     if (!current.includes(id)) {
       const updated = [...current, id];
-      StorageService.set(STORAGE_KEYS.INSTALLED_TOOLS, updated);
-      events.emit('tools:changed', { installedIds: updated, action: 'install', toolId: id });
+      WorkspaceManager.setInstalledMarketToolIds(updated);
+      events.emit('tools:changed', {
+        installedIds: updated,
+        action: 'install',
+        toolId: id
+      });
     }
   },
 
   uninstallTool(id) {
+    const activeWs = WorkspaceManager.getActiveWorkspace();
+    if (activeWs?.wsTools?.includes(id)) {
+      return; // Las WS Tools preinstaladas del workspace no se desinstalan
+    }
     const current = this.getInstalledToolIds();
     const updated = current.filter((item) => item !== id);
-    StorageService.set(STORAGE_KEYS.INSTALLED_TOOLS, updated);
-    events.emit('tools:changed', { installedIds: updated, action: 'uninstall', toolId: id });
+    WorkspaceManager.setInstalledMarketToolIds(updated);
+    events.emit('tools:changed', {
+      installedIds: updated,
+      action: 'uninstall',
+      toolId: id
+    });
   }
 };

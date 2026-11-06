@@ -6,7 +6,10 @@ export const STORAGE_KEYS = {
   LAYOUT: 'ag_devtool_layout',
   SIDEBAR: 'ag_devtool_sidebar',
   NOTES: 'ag_devtool_notes',
-  ADMIN_SESSION: 'ag_devtool_admin_session'
+  ADMIN_SESSION: 'ag_devtool_admin_session',
+  WORKSPACES: 'ag_devtool_workspaces',
+  ACTIVE_WORKSPACE: 'ag_devtool_active_workspace',
+  WORKSPACE_LAYOUTS: 'ag_devtool_workspace_layouts'
 };
 
 export const StorageService = {
