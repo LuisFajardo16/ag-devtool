@@ -37,6 +37,9 @@ function getDefaultLayoutForWorkspace(workspace) {
   const primaryWsTool = workspace?.wsTools?.[0];
   if (primaryWsTool) {
     base.panelTools[0] = primaryWsTool;
+    if (workspace?.wsTools?.[1]) {
+      base.panelTools[1] = workspace.wsTools[1];
+    }
   }
   return base;
 }

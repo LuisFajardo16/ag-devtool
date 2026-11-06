@@ -9,6 +9,7 @@ import {
   RegexTesterTool
 } from '../tools/BuiltinTools.js';
 import { CanvasSuffixGeneratorTool } from '../tools/CanvasSuffixGenerator.js';
+import { YamlPowerFxDiffTool } from '../tools/YamlPowerFxDiff.js';
 import { AdminComponentsTool } from '../views/AdminComponentsView.js';
 
 const MARKET_TOOLS = [
@@ -20,7 +21,8 @@ const MARKET_TOOLS = [
 ];
 
 const WS_TOOLS = [
-  CanvasSuffixGeneratorTool
+  CanvasSuffixGeneratorTool,
+  YamlPowerFxDiffTool
 ];
 
 const ALL_TOOLS = [
