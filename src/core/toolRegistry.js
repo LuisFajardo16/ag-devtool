@@ -2,11 +2,13 @@ import { events } from './events.js';
 import { AuthService } from './auth.js';
 import { WorkspaceManager } from './workspaceManager.js';
 import { NotesManagerTool } from '../tools/NotesManager.js';
+import { MarkdownManagerTool } from '../tools/MarkdownManager.js';
 import {
   JsonFormatterTool,
   Base64CodecTool,
   UuidHashTool,
-  RegexTesterTool
+  RegexTesterTool,
+  ColorPickerTool
 } from '../tools/BuiltinTools.js';
 import { CanvasSuffixGeneratorTool } from '../tools/CanvasSuffixGenerator.js';
 import { YamlPowerFxDiffTool } from '../tools/YamlPowerFxDiff.js';
@@ -14,7 +16,9 @@ import { AdminComponentsTool } from '../views/AdminComponentsView.js';
 
 const MARKET_TOOLS = [
   NotesManagerTool,
+  MarkdownManagerTool,
   JsonFormatterTool,
+  ColorPickerTool,
   Base64CodecTool,
   UuidHashTool,
   RegexTesterTool
