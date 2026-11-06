@@ -9,7 +9,9 @@ export const STORAGE_KEYS = {
   ADMIN_SESSION: 'ag_devtool_admin_session',
   WORKSPACES: 'ag_devtool_workspaces',
   ACTIVE_WORKSPACE: 'ag_devtool_active_workspace',
-  WORKSPACE_LAYOUTS: 'ag_devtool_workspace_layouts'
+  WORKSPACE_LAYOUTS: 'ag_devtool_workspace_layouts',
+  COLOR_HISTORY: 'ag_devtool_color_history',
+  MARKDOWN_MANAGER: 'ag_devtool_markdown_manager'
 };
 
 export const StorageService = {
