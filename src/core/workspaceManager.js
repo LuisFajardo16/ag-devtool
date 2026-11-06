@@ -14,7 +14,7 @@ export const SYSTEM_WORKSPACES = [
     id: 'navas-jmd',
     name: 'Navas JMD',
     isSystem: true,
-    wsTools: ['canvas-app-suffix-generator']
+    wsTools: ['canvas-app-suffix-generator', 'yaml-powerfx-diff']
   }
 ];
 
