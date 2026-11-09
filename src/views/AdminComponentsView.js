@@ -5,6 +5,7 @@ import {
   createDropdown,
   createInput,
   createTextarea,
+  createBlockEditor,
   Modal,
   Toast
 } from '../components/ui/index.js';
@@ -42,7 +43,7 @@ export function renderAdminComponentsCatalog(container) {
         <span class="text-xs text-slate-400">Autenticado vía SHA-256 (Web Crypto API)</span>
       </div>
       <h2 class="text-lg font-bold text-white mt-1">Catálogo de Componentes Visuales (UI Kit)</h2>
-      <p class="text-xs text-slate-400">Inspecciona y prueba en vivo los componentes reutilizables de AG-DevTool: Botones, Popups, Dropdowns, Inputs, Badges y Toasts.</p>
+      <p class="text-xs text-slate-400">Inspecciona y prueba en vivo los componentes reutilizables de AG-DevTool: Botones, Popups, Dropdowns, Inputs, Badges, Toasts y BlockEditor.</p>
     </div>
   `;
   root.appendChild(banner);
@@ -331,6 +332,49 @@ export function renderAdminComponentsCatalog(container) {
     })
   );
 
+  // 7. SECCIÓN: EDITOR DE BLOQUES REUTILIZABLE (BlockEditor.js) — Ancho completo
+  const blockEditorBody = document.createElement('div');
+  blockEditorBody.className = 'space-y-3';
+  blockEditorBody.innerHTML = `
+    <p class="text-xs text-slate-400">
+      Componente de sistema <code>createBlockEditor()</code> reutilizable en múltiples herramientas: soporta bloques de texto (<code>p</code>, <code>h1</code>, <code>h2</code>, <code>h3</code>, <code>quote</code>, <code>bullet</code>), código (<code>1 línea</code> | <code>bloque</code>), links (<code>url</code> | <code>bookmark</code>), imagen, divider, selector de color de texto y configuración de <strong>1 a 3 columnas</strong> (por defecto 1).
+    </p>
+  `;
+
+  const demoEditor = createBlockEditor({
+    initialBlocks: [
+      {
+        columns: 1,
+        type: 'h2',
+        color: 'indigo',
+        content: 'Demostración en vivo de BlockEditor.js'
+      },
+      {
+        columns: 2,
+        cells: [
+          {
+            type: 'p',
+            color: 'default',
+            content: 'Columna 1: Texto enriquecido con selector de color y tipo de bloque.'
+          },
+          {
+            type: 'code-line',
+            color: 'emerald',
+            content: 'npm run dev -- --host'
+          }
+        ]
+      }
+    ]
+  });
+  blockEditorBody.appendChild(demoEditor.element);
+
+  const blockEditorCard = createCard({
+    header: '7. Editor de Bloques Tipo Notion (BlockEditor.js)',
+    body: blockEditorBody,
+    className: 'lg:col-span-2'
+  });
+  grid.appendChild(blockEditorCard);
+
   root.appendChild(grid);
   container.appendChild(root);
 }
@@ -365,7 +409,7 @@ export function openAdminComponentsModal() {
 export const AdminComponentsTool = {
   id: 'admin-ui-kit',
   name: 'Admin: UI Components',
-  description: 'Catálogo interactivo de Popups, Dropdowns, Botones, Inputs y estado de localStorage (Solo Admin).',
+  description: 'Catálogo interactivo de Popups, Dropdowns, Botones, Inputs, BlockEditor y estado de localStorage (Solo Admin).',
   category: 'Administración',
   icon: 'shield',
   adminOnly: true,

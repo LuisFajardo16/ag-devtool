@@ -6,3 +6,4 @@ export { Modal } from './Modal.js';
 export { createDropdown } from './Dropdown.js';
 export { createInput, createTextarea } from './Input.js';
 export { Toast } from './Toast.js';
+export { createBlockEditor, BLOCK_TYPES, TEXT_COLORS } from './BlockEditor.js';

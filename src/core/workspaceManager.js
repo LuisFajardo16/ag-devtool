@@ -1,7 +1,7 @@
 import { StorageService, STORAGE_KEYS } from './storage.js';
 import { events } from './events.js';
 
-const DEFAULT_MARKET_TOOLS = ['notes-manager', 'json-formatter'];
+const DEFAULT_MARKET_TOOLS = ['block-notes-manager', 'notes-manager', 'json-formatter'];
 
 export const SYSTEM_WORKSPACES = [
   {
@@ -40,14 +40,18 @@ function loadNormalizedWorkspaces() {
     const existing = savedMap.get(sysWs.id);
     const fallbackMarket =
       sysWs.id === 'default' ? defaultInitialMarket : [...DEFAULT_MARKET_TOOLS];
+    const resolvedTools = Array.isArray(existing?.installedMarketTools)
+      ? [...existing.installedMarketTools]
+      : [...fallbackMarket];
+    if (!resolvedTools.includes('block-notes-manager')) {
+      resolvedTools.unshift('block-notes-manager');
+    }
     return {
       id: sysWs.id,
       name: sysWs.name,
       isSystem: true,
       wsTools: [...sysWs.wsTools],
-      installedMarketTools: Array.isArray(existing?.installedMarketTools)
-        ? existing.installedMarketTools
-        : fallbackMarket
+      installedMarketTools: resolvedTools
     };
   });
 

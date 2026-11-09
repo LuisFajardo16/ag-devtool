@@ -13,6 +13,7 @@ Diseñado para ejecutarse 100% en el navegador sin necesidad de backend, persist
   - **Popups / Modales (`Modal.js`)**: Ventanas emergentes personalizables y diálogos de confirmación (`Modal.confirm`).
   - **Dropdowns (`Dropdown.js`)**: Menús desplegables con iconos, badges, separadores y cierre automático al hacer clic fuera.
   - **Inputs y Textareas (`Input.js`)**: Controles de formulario estandarizados con soporte monoespaciado.
+  - **Editor de Bloques (`BlockEditor.js`)**: Componente de sistema estilo Notion reutilizable en múltiples herramientas, con soporte para bloques de texto (`p`, `h1`, `h2`, `h3`, `quote`, `bullet`), código (`1 línea` | `bloque`), links (`url` | `bookmark`), imagen, `divider`, selector de color de texto y bloques de **1 a 3 columnas** (`1` por defecto).
   - **Notificaciones (`Toast.js`), `Badge.js` y `Card.js`**.
 - **Motor Multipanel Redimensionable (1 a 6 Paneles)**:
   - Divide el área de trabajo desde **1 hasta 6 paneles simultáneos**.
@@ -23,8 +24,11 @@ Diseñado para ejecutarse 100% en el navegador sin necesidad de backend, persist
   - Estado expandido/colapsado persistido en `localStorage`.
 - **Marketplace de Utilidades**:
   - Permite **agregar (instalar)** o **quitar (desinstalar)** utilidades en cualquier momento con búsqueda y filtros.
-- **Notes Manager (Primera Herramienta Integrada)**:
-  - Creación de notas con **título** y **contenido**.
+- **Block Notes & Directories (`BlockNotesManager.js`)**:
+  - Gestión de directorios jerárquicos y notas enriquecidas usando `BlockEditor.js`.
+  - Header con `Title`, `Description` y propiedades tipadas (`texto`, `fecha` y `tags`), más un apartado integrado para crear y administrar tags.
+- **Notes Manager**:
+  - Creación de notas rápidas con **título** y **contenido**.
   - Edición y eliminación con popup de confirmación.
   - Búsqueda instantánea y sincronización automática en `localStorage`.
 - **Rol de Administrador (Acceso con Hash SHA-256)**:

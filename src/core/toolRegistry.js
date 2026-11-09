@@ -2,6 +2,7 @@ import { events } from './events.js';
 import { AuthService } from './auth.js';
 import { WorkspaceManager } from './workspaceManager.js';
 import { NotesManagerTool } from '../tools/NotesManager.js';
+import { BlockNotesManagerTool } from '../tools/BlockNotesManager.js';
 import { MarkdownManagerTool } from '../tools/MarkdownManager.js';
 import {
   JsonFormatterTool,
@@ -15,6 +16,7 @@ import { YamlPowerFxDiffTool } from '../tools/YamlPowerFxDiff.js';
 import { AdminComponentsTool } from '../views/AdminComponentsView.js';
 
 const MARKET_TOOLS = [
+  BlockNotesManagerTool,
   NotesManagerTool,
   MarkdownManagerTool,
   JsonFormatterTool,
