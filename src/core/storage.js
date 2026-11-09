@@ -11,7 +11,8 @@ export const STORAGE_KEYS = {
   ACTIVE_WORKSPACE: 'ag_devtool_active_workspace',
   WORKSPACE_LAYOUTS: 'ag_devtool_workspace_layouts',
   COLOR_HISTORY: 'ag_devtool_color_history',
-  MARKDOWN_MANAGER: 'ag_devtool_markdown_manager'
+  MARKDOWN_MANAGER: 'ag_devtool_markdown_manager',
+  BLOCK_NOTES_MANAGER: 'ag_devtool_block_notes'
 };
 
 export const StorageService = {
