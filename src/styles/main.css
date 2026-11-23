@@ -54,3 +54,144 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* ============================================================================
+ * CodeEditor & Syntax Highlighting (paleta oscura inspirada en Tokyo Night / One Dark)
+ * ============================================================================ */
+.ag-code-editor {
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+}
+
+.ag-code-gutter {
+  min-width: 2.5rem;
+  padding: 11px 8px 11px 6px;
+  font-size: 11px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ag-code-line-num {
+  height: 20px;
+  line-height: 20px;
+}
+
+.ag-code-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 11px 14px;
+  border: 0;
+  box-sizing: border-box;
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+  font-size: 12.5px;
+  line-height: 20px;
+  letter-spacing: 0;
+  tab-size: 2;
+  -moz-tab-size: 2;
+  white-space: pre;
+  word-wrap: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.ag-code-highlight {
+  color: #e2e8f0;
+  background: transparent;
+  overflow: hidden;
+}
+
+.ag-code-highlight code {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  tab-size: inherit;
+}
+
+.ag-code-input {
+  color: transparent;
+  background: transparent;
+  caret-color: #818cf8;
+  resize: none;
+  outline: none;
+  overflow: auto;
+  -webkit-text-fill-color: transparent;
+}
+
+.ag-code-input::placeholder {
+  color: #475569;
+  -webkit-text-fill-color: #475569;
+}
+
+.ag-code-input::selection {
+  background: rgba(99, 102, 241, 0.35);
+}
+
+/* Tokens de sintaxis */
+.tok-comment {
+  color: #64748b;
+  font-style: italic;
+}
+
+.tok-keyword {
+  color: #c084fc;
+  font-weight: 500;
+}
+
+.tok-string {
+  color: #34d399;
+}
+
+.tok-number {
+  color: #fbbf24;
+}
+
+.tok-boolean {
+  color: #fb923c;
+  font-weight: 500;
+}
+
+.tok-function {
+  color: #60a5fa;
+}
+
+.tok-type {
+  color: #2dd4bf;
+}
+
+.tok-builtin {
+  color: #38bdf8;
+}
+
+.tok-property {
+  color: #93c5fd;
+}
+
+.tok-tag {
+  color: #fb7185;
+}
+
+.tok-decorator {
+  color: #f472b6;
+}
+
+.tok-operator {
+  color: #94a3b8;
+}
+
+.tok-punctuation {
+  color: #64748b;
+}
+
+/* Fondo ajedrezado para vista previa de imágenes con transparencia */
+.checkerboard-bg {
+  background-color: #0b1120;
+  background-image:
+    linear-gradient(45deg, rgba(148, 163, 184, 0.08) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(148, 163, 184, 0.08) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(148, 163, 184, 0.08) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(148, 163, 184, 0.08) 75%);
+  background-size: 18px 18px;
+  background-position: 0 0, 0 9px, 9px -9px, -9px 0;
+}
