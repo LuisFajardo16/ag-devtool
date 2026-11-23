@@ -1,7 +1,7 @@
 import { StorageService, STORAGE_KEYS } from './storage.js';
 import { events } from './events.js';
 
-const DEFAULT_MARKET_TOOLS = ['block-notes-manager', 'notes-manager', 'json-formatter'];
+const DEFAULT_MARKET_TOOLS = ['block-notes-manager', 'file-manager', 'notes-manager', 'json-formatter'];
 
 export const SYSTEM_WORKSPACES = [
   {
@@ -35,6 +35,8 @@ function loadNormalizedWorkspaces() {
     });
   }
 
+  let needsPersist = !Array.isArray(saved);
+
   // Garantizar que los workspaces de sistema siempre existan y conserven sus propiedades de sistema
   const result = SYSTEM_WORKSPACES.map((sysWs) => {
     const existing = savedMap.get(sysWs.id);
@@ -45,11 +47,19 @@ function loadNormalizedWorkspaces() {
       : [...fallbackMarket];
     if (!resolvedTools.includes('block-notes-manager')) {
       resolvedTools.unshift('block-notes-manager');
+      needsPersist = true;
+    }
+    if (!existing?.seededFileManager) {
+      if (!resolvedTools.includes('file-manager')) {
+        resolvedTools.splice(1, 0, 'file-manager');
+      }
+      needsPersist = true;
     }
     return {
       id: sysWs.id,
       name: sysWs.name,
       isSystem: true,
+      seededFileManager: true,
       wsTools: [...sysWs.wsTools],
       installedMarketTools: resolvedTools
     };
@@ -67,6 +77,7 @@ function loadNormalizedWorkspaces() {
           id: ws.id,
           name: String(ws.name || 'Workspace').trim(),
           isSystem: false,
+          seededFileManager: Boolean(ws.seededFileManager),
           wsTools: [],
           installedMarketTools: Array.isArray(ws.installedMarketTools)
             ? ws.installedMarketTools
@@ -76,7 +87,7 @@ function loadNormalizedWorkspaces() {
     });
   }
 
-  if (!Array.isArray(saved)) {
+  if (needsPersist) {
     StorageService.set(STORAGE_KEYS.WORKSPACES, result);
   }
 

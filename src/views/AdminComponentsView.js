@@ -6,6 +6,7 @@ import {
   createInput,
   createTextarea,
   createBlockEditor,
+  createCodeEditor,
   Modal,
   Toast
 } from '../components/ui/index.js';
@@ -363,6 +364,14 @@ export function renderAdminComponentsCatalog(container) {
             content: 'npm run dev -- --host'
           }
         ]
+      },
+      {
+        columns: 1,
+        type: 'code-block',
+        color: 'default',
+        content:
+          '// Presiona Tab o Shift+Tab sin perder el foco\nexport async function greet(name) {\n  const message = `Hola, ${name}!`;\n  return { ok: true, message };\n}',
+        meta: { language: 'javascript' }
       }
     ]
   });
@@ -374,6 +383,50 @@ export function renderAdminComponentsCatalog(container) {
     className: 'lg:col-span-2'
   });
   grid.appendChild(blockEditorCard);
+
+  // 8. SECCIÓN: EDITOR DE CÓDIGO REUTILIZABLE (CodeEditor.js) — Ancho completo
+  const codeEditorBody = document.createElement('div');
+  codeEditorBody.className = 'space-y-3';
+
+  const codeDemoHeader = document.createElement('div');
+  codeDemoHeader.className = 'flex flex-wrap items-center justify-between gap-2';
+  codeDemoHeader.innerHTML = `
+    <p class="text-xs text-slate-400">
+      Componente reutilizable <code>createCodeEditor()</code> con resaltado en tiempo real, números de línea, captura de <code>Tab</code> / <code>Shift+Tab</code>, auto-indentación y auto-cierre de pares.
+    </p>
+  `;
+
+  const langDemoSelect = document.createElement('select');
+  langDemoSelect.className =
+    'bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs font-mono text-indigo-300 outline-none focus:border-indigo-500';
+  ['typescript', 'javascript', 'json', 'html', 'css', 'python', 'sql'].forEach((l) => {
+    const opt = document.createElement('option');
+    opt.value = l;
+    opt.textContent = l;
+    langDemoSelect.appendChild(opt);
+  });
+  codeDemoHeader.appendChild(langDemoSelect);
+
+  const demoCodeEditor = createCodeEditor({
+    language: 'typescript',
+    autoResize: true,
+    minHeight: 140,
+    maxHeight: 280,
+    value: `interface WorkspaceConfig {\n  id: string;\n  name: string;\n  supportedExtensions: string[];\n}\n\nexport function createConfig(name: string): WorkspaceConfig {\n  return {\n    id: crypto.randomUUID(),\n    name,\n    supportedExtensions: ['.md', '.json', '.ts', '.js']\n  };\n}`
+  });
+
+  langDemoSelect.addEventListener('change', (e) => {
+    demoCodeEditor.setLanguage(e.target.value);
+  });
+
+  codeEditorBody.append(codeDemoHeader, demoCodeEditor.element);
+  grid.appendChild(
+    createCard({
+      header: '8. Editor de Código con Resaltado (CodeEditor.js)',
+      body: codeEditorBody,
+      className: 'lg:col-span-2'
+    })
+  );
 
   root.appendChild(grid);
   container.appendChild(root);
