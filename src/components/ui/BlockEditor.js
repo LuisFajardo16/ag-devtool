@@ -1,5 +1,6 @@
 import { Toast } from './Toast.js';
 import { getIcon } from './icons.js';
+import { createCodeEditor } from './CodeEditor.js';
 
 export const BLOCK_TYPES = [
   {
@@ -681,13 +682,16 @@ export function createBlockEditor({
     if (cell.type === 'code-line' || cell.type === 'code-block') {
       const isSingleLine = cell.type === 'code-line';
       const codeWrap = document.createElement('div');
-      codeWrap.className =
-        'group/code relative rounded-xl bg-slate-900/90 border border-slate-800/90 px-3 py-2 flex flex-col gap-1.5';
+      codeWrap.className = isSingleLine
+        ? 'group/code relative rounded-xl bg-slate-900/90 border border-slate-800/90 px-3 py-2 flex flex-col gap-1.5'
+        : 'group/code relative rounded-xl bg-slate-950/90 border border-slate-800/90 overflow-hidden flex flex-col';
 
-      // Controles minimalistas flotantes en la esquina superior derecha del código
+      let codeEditorInstance = null;
+
+      // Controles minimalistas del bloque de código
       const codeTopRight = document.createElement('div');
       codeTopRight.className =
-        'flex items-center justify-end gap-1.5 text-[11px] opacity-80 group-hover/code:opacity-100 transition-opacity';
+        'flex items-center justify-end gap-1.5 text-[11px] opacity-85 group-hover/code:opacity-100 transition-opacity';
 
       if (!readOnly) {
         const modePill = document.createElement('button');
@@ -709,8 +713,9 @@ export function createBlockEditor({
 
         if (!isSingleLine) {
           const langSelect = document.createElement('select');
+          langSelect.title = 'Lenguaje de resaltado';
           langSelect.className =
-            'bg-slate-950/90 border border-slate-800 rounded px-1.5 py-0.5 text-[10px] text-slate-400 outline-none focus:border-indigo-500';
+            'bg-slate-950/90 border border-slate-800 rounded px-1.5 py-0.5 text-[10px] font-mono text-indigo-300 outline-none focus:border-indigo-500 cursor-pointer';
           CODE_LANGUAGES.forEach((lang) => {
             const opt = document.createElement('option');
             opt.value = lang;
@@ -720,10 +725,17 @@ export function createBlockEditor({
           });
           langSelect.addEventListener('change', (e) => {
             cell.meta.language = e.target.value;
+            codeEditorInstance?.setLanguage(e.target.value);
             emitChange();
           });
           codeTopRight.appendChild(langSelect);
         }
+      } else if (!isSingleLine) {
+        const langTag = document.createElement('span');
+        langTag.className =
+          'px-1.5 py-0.5 rounded bg-slate-950/90 border border-slate-800 text-[10px] font-mono text-indigo-300 uppercase';
+        langTag.textContent = cell.meta?.language || 'javascript';
+        codeTopRight.appendChild(langTag);
       }
 
       const copyBtn = document.createElement('button');
@@ -744,15 +756,26 @@ export function createBlockEditor({
         input.type = 'text';
         input.readOnly = readOnly;
         input.value = cell.content || '';
+        input.spellcheck = false;
         input.placeholder = 'Escribe código de una línea...';
         input.setAttribute('data-focus-target', `${block.id}:${colIndex}`);
-        input.className = `flex-1 min-w-0 bg-transparent font-mono text-xs ${colorMeta.textClass} placeholder-slate-600 outline-none`;
+        input.className = `flex-1 min-w-0 bg-transparent font-mono text-xs ${
+          cell.color === 'default' ? 'text-emerald-300' : colorMeta.textClass
+        } placeholder-slate-600 outline-none`;
         input.addEventListener('input', (e) => {
           cell.content = e.target.value;
           emitChange();
         });
         input.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
+          if (e.key === 'Tab' && !readOnly) {
+            e.preventDefault();
+            e.stopPropagation();
+            const s = input.selectionStart ?? input.value.length;
+            const end = input.selectionEnd ?? s;
+            input.setRangeText('  ', s, end, 'end');
+            cell.content = input.value;
+            emitChange();
+          } else if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             addBlockAt(blockIndex + 1, 'p', 1);
           } else if (e.key === 'Backspace' && !input.value) {
@@ -763,27 +786,46 @@ export function createBlockEditor({
         row.append(input, codeTopRight);
         codeWrap.appendChild(row);
       } else {
-        codeWrap.appendChild(codeTopRight);
-        const ta = document.createElement('textarea');
-        ta.rows = Math.max(2, (cell.content || '').split('\n').length);
-        ta.readOnly = readOnly;
-        ta.value = cell.content || '';
-        ta.placeholder = '// Escribe tu bloque de código...';
-        ta.setAttribute('data-focus-target', `${block.id}:${colIndex}`);
-        ta.className = `w-full bg-transparent font-mono text-xs leading-relaxed ${colorMeta.textClass} placeholder-slate-600 outline-none resize-none overflow-hidden`;
-        ta.addEventListener('input', (e) => {
-          cell.content = e.target.value;
-          autoResizeTextarea(ta);
-          emitChange();
-        });
-        ta.addEventListener('keydown', (e) => {
-          if (e.key === 'Backspace' && !ta.value) {
-            e.preventDefault();
-            transformCell(cell, block, colIndex, 'p');
+        const codeHeader = document.createElement('div');
+        codeHeader.className =
+          'px-3 py-1.5 bg-slate-900/95 border-b border-slate-800/90 flex flex-wrap items-center justify-between gap-2';
+
+        const leftMeta = document.createElement('div');
+        leftMeta.className = 'flex items-center gap-2 text-[10px] text-slate-500 font-mono select-none';
+        leftMeta.innerHTML = `
+          <span class="inline-flex items-center gap-1 text-indigo-400/90">${getIcon('terminal')}</span>
+          <span class="hidden sm:inline">Tab: indentar · Shift+Tab: quitar sangría · Esc: salir</span>
+        `;
+
+        codeHeader.append(leftMeta, codeTopRight);
+        codeWrap.appendChild(codeHeader);
+
+        codeEditorInstance = createCodeEditor({
+          value: cell.content || '',
+          language: cell.meta?.language || 'javascript',
+          readOnly,
+          lineNumbers: true,
+          autoResize: true,
+          minHeight: 88,
+          maxHeight: 460,
+          placeholder: '// Escribe tu bloque de código...',
+          focusTarget: `${block.id}:${colIndex}`,
+          className: 'border-0 rounded-none bg-transparent',
+          onChange: (nextVal) => {
+            cell.content = nextVal;
+            emitChange();
+          },
+          onKeyDown: (e, ta) => {
+            if (e.key === 'Backspace' && !ta.value) {
+              e.preventDefault();
+              transformCell(cell, block, colIndex, 'p');
+              return true;
+            }
+            return false;
           }
         });
-        codeWrap.appendChild(ta);
-        setTimeout(() => autoResizeTextarea(ta), 0);
+
+        codeWrap.appendChild(codeEditorInstance.element);
       }
 
       body.appendChild(codeWrap);

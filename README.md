@@ -13,7 +13,8 @@ Diseñado para ejecutarse 100% en el navegador sin necesidad de backend, persist
   - **Popups / Modales (`Modal.js`)**: Ventanas emergentes personalizables y diálogos de confirmación (`Modal.confirm`).
   - **Dropdowns (`Dropdown.js`)**: Menús desplegables con iconos, badges, separadores y cierre automático al hacer clic fuera.
   - **Inputs y Textareas (`Input.js`)**: Controles de formulario estandarizados con soporte monoespaciado.
-  - **Editor de Bloques (`BlockEditor.js`)**: Componente de sistema estilo Notion reutilizable en múltiples herramientas, con soporte para bloques de texto (`p`, `h1`, `h2`, `h3`, `quote`, `bullet`), código (`1 línea` | `bloque`), links (`url` | `bookmark`), imagen, `divider`, selector de color de texto y bloques de **1 a 3 columnas** (`1` por defecto).
+  - **Editor de Bloques (`BlockEditor.js`)**: Componente de sistema estilo Notion reutilizable en múltiples herramientas, con soporte para bloques de texto (`p`, `h1`, `h2`, `h3`, `quote`, `bullet`), código (`1 línea` | `bloque` con resaltado de sintaxis y edición con `Tab`/`Shift+Tab`), links (`url` | `bookmark`), imagen, `divider`, selector de color de texto y bloques de **1 a 3 columnas** (`1` por defecto).
+  - **Editor de Código (`CodeEditor.js`)**: Editor de código reutilizable con resaltado de sintaxis en tiempo real, números de línea, indentación con `Tab` / `Shift+Tab`, auto-indentación y auto-cierre de pares.
   - **Notificaciones (`Toast.js`), `Badge.js` y `Card.js`**.
 - **Motor Multipanel Redimensionable (1 a 6 Paneles)**:
   - Divide el área de trabajo desde **1 hasta 6 paneles simultáneos**.
@@ -27,6 +28,9 @@ Diseñado para ejecutarse 100% en el navegador sin necesidad de backend, persist
 - **Block Notes & Directories (`BlockNotesManager.js`)**:
   - Gestión de directorios jerárquicos y notas enriquecidas usando `BlockEditor.js`.
   - Header con `Title`, `Description` y propiedades tipadas (`texto`, `fecha` y `tags`), más un apartado integrado para crear y administrar tags.
+- **File Manager (`FileManager.js`)**:
+  - Gestión de múltiples workspaces locales con selección de directorio y árbol lateral de archivos básicos (`.md`, imágenes, `.json`, `.ts`, `.js`, texto y estilos).
+  - Edición y vista previa (Preview / Edición / Dividido) para Markdown, preview interactivo con zoom para imágenes y resaltado de sintaxis con edición y guardado para archivos JSON, TS y JS.
 - **Notes Manager**:
   - Creación de notas rápidas con **título** y **contenido**.
   - Edición y eliminación con popup de confirmación.
@@ -87,12 +91,3 @@ Como el proyecto no requiere compilación:
 1. En GitHub, ve a **Settings** → **Pages**.
 2. En **Source**, elige **Deploy from a branch**.
 3. Selecciona la rama `main` y la carpeta `/ (root)` y haz clic en **Save**.
-
----
-
-## 🧠 Cerebro Local (`.lucho-workspace`)
-
-El directorio `.lucho-workspace/` en la raíz contiene el contexto extendido del proyecto:
-- [`.lucho-workspace/README.md`](./.lucho-workspace/README.md): Índice general del cerebro local.
-- [`.lucho-workspace/rules.md`](./.lucho-workspace/rules.md): Reglas del proyecto, convenciones de `localStorage` y contrato de herramientas.
-- [`.lucho-workspace/architecture.md`](./.lucho-workspace/architecture.md): Detalle de la arquitectura modular y del gestor de 1 a 6 paneles.

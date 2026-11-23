@@ -4,6 +4,7 @@ import { WorkspaceManager } from './workspaceManager.js';
 import { NotesManagerTool } from '../tools/NotesManager.js';
 import { BlockNotesManagerTool } from '../tools/BlockNotesManager.js';
 import { MarkdownManagerTool } from '../tools/MarkdownManager.js';
+import { FileManagerTool } from '../tools/FileManager.js';
 import {
   JsonFormatterTool,
   Base64CodecTool,
@@ -17,6 +18,7 @@ import { AdminComponentsTool } from '../views/AdminComponentsView.js';
 
 const MARKET_TOOLS = [
   BlockNotesManagerTool,
+  FileManagerTool,
   NotesManagerTool,
   MarkdownManagerTool,
   JsonFormatterTool,
